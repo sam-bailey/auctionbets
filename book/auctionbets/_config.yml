@@ -1,0 +1,13 @@
+title: "Auction Bets"
+author: "Sam Bailey"
+copyright: "2021"
+repository:
+  url: https://github.com/sam-bailey/auctionbets
+  path_to_book: "book/auctionbets"
+html:
+  use_repository_button: true
+  use_issues_button: true
+execute:
+  timeout: 120
+# launch_buttons:
+  # notebook_interface: jupyterlab

@@ -1,0 +1,9 @@
+.jupyter
+.ipython
+.local
+.DS_Store
+.devcontainer
+.vscode
+*.egg-info
+__pycache__
+book/melvin/_build

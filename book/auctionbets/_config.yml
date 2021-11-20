@@ -8,6 +8,6 @@ html:
   use_repository_button: true
   use_issues_button: true
 execute:
-  timeout: 120
+  execute_notebooks: "off"
 # launch_buttons:
   # notebook_interface: jupyterlab

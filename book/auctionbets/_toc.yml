@@ -1,6 +1,7 @@
-- file: introduction.md
+format: jb-book
+root: introduction.md
+options:
+  caption: Basics
   numbered: true
-
-- part: Basics
-  chapters:
-  - file: test.ipynb
+chapters:
+- file: test.ipynb

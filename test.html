@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>1. Test Notebook &#8212; Auction Bets</title>
+    <title>1. Simulation Basics &#8212; Auction Bets</title>
     
   <link href="_static/css/theme.css" rel="stylesheet">
   <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -98,7 +98,7 @@
 <ul class="current nav bd-sidenav">
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
-   1. Test Notebook
+   1. Simulation Basics
   </a>
  </li>
 </ul>
@@ -200,6 +200,29 @@
         <!-- Table of contents -->
         <div class="d-none d-md-block col-md-2 bd-toc show">
             
+            <div class="tocsection onthispage pt-5 pb-3">
+                <i class="fas fa-list"></i> Contents
+            </div>
+            <nav id="bd-toc-nav" aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#agents">
+   1.1. Agents
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#events">
+   1.2. Events
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-an-event">
+   1.3. Running an event
+  </a>
+ </li>
+</ul>
+
+            </nav>
         </div>
     </div>
 </div>
@@ -208,9 +231,303 @@
         
               <div>
                 
-  <div class="tex2jax_ignore mathjax_ignore section" id="test-notebook">
-<h1><span class="section-number">1. </span>Test Notebook<a class="headerlink" href="#test-notebook" title="Permalink to this headline">¶</a></h1>
-<p>Need to add real stuff to this</p>
+  <div class="tex2jax_ignore mathjax_ignore section" id="simulation-basics">
+<h1><span class="section-number">1. </span>Simulation Basics<a class="headerlink" href="#simulation-basics" title="Permalink to this headline">¶</a></h1>
+<p>These are the basic components we will use for our simulations. This notebook goes over how they work.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">auctionbets.events</span> <span class="kn">import</span> <span class="n">Event</span>
+<span class="kn">from</span> <span class="nn">auctionbets.agents</span> <span class="kn">import</span> <span class="n">Agent</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="agents">
+<h2><span class="section-number">1.1. </span>Agents<a class="headerlink" href="#agents" title="Permalink to this headline">¶</a></h2>
+<p>Agents represent people who make or lay bets. An agent just has their capital, which is the total stake of money they have left, and a list of ids for their open bets (bets they have not yet collected for).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">agent_1</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">starting_capital</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+<span class="n">agent_2</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">starting_capital</span><span class="o">=</span><span class="mf">100.0</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">agent_1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent_2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>**Agent 0**
+  Capital: 100.00
+  Open bets:
+**Agent 1**
+  Capital: 100.00
+  Open bets:
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="events">
+<h2><span class="section-number">1.2. </span>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h2>
+<p>Events represent specific sporting events with a binary outcome (win or lose). These are the events that agents can bet on.</p>
+<p>Each event has a “true probability” of happening. This is unknown to the agents.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">event_1</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">true_probability</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">event_1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>**Event 2**
+  True Probability: 0.5
+  Bettor Odds: unset
+  Layer Odds: unset
+  All bets:
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now agents can either bet or lay an event.</p>
+<p>If they bet the event, then they are betting the outcome happens. If it happens, they get their stake back, plus the odds * their stake.</p>
+<p>If the lay the event, they are taking the opposite side of that bet. Therefore, they lose if the outcome happens. If the outcome happens, they lose their money.</p>
+<p>Here agent 1 bets on the event, and agent 2 lays it.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bet_1</span> <span class="o">=</span> <span class="n">agent_1</span><span class="o">.</span><span class="n">bet</span><span class="p">(</span><span class="n">min_odds</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="n">event_1</span><span class="p">)</span>
+<span class="n">bet_2</span> <span class="o">=</span> <span class="n">agent_2</span><span class="o">.</span><span class="n">lay</span><span class="p">(</span><span class="n">max_odds</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="n">event_1</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">bet_1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bet_2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Bet(limit_odds=1.5, stake=10.0, agent_idx=0, event_idx=2)
+Lay(limit_odds=2.0, stake=30.0, agent_idx=1, event_idx=2)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now the event and the agents both have those bets associated with them:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">agent_1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">agent_2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">event_1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>**Agent 0**
+  Capital: 90.00
+  Open bets:
+    Bet(limit_odds=1.5, stake=10.0, agent_idx=0, event_idx=2)
+**Agent 1**
+  Capital: 70.00
+  Open bets:
+    Lay(limit_odds=2.0, stake=30.0, agent_idx=1, event_idx=2)
+**Event 2**
+  True Probability: 0.5
+  Bettor Odds: unset
+  Layer Odds: unset
+  All bets:
+    Bet(limit_odds=1.5, stake=10.0, agent_idx=0, event_idx=2) (unmatched)
+    Lay(limit_odds=2.0, stake=30.0, agent_idx=1, event_idx=2) (unmatched)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="running-an-event">
+<h2><span class="section-number">1.3. </span>Running an event<a class="headerlink" href="#running-an-event" title="Permalink to this headline">¶</a></h2>
+<p>An event needs to first be matched, which is where we run the double auction mechanism and match up all possible bets. Those bets that cannot be matched get their stake returned.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">true_probability</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="n">n_agents</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">agents_pool</span> <span class="o">=</span> <span class="p">[</span><span class="n">Agent</span><span class="p">(</span><span class="n">starting_capital</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_agents</span><span class="p">)]</span>
+
+<span class="n">is_lay_lst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span> <span class="n">n_agents</span><span class="p">)</span>
+<span class="n">stake_lst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_agents</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">20.0</span> <span class="o">-</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">10.0</span>
+<span class="n">odds_lst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n_agents</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+
+<span class="k">for</span> <span class="n">agent</span><span class="p">,</span> <span class="n">is_lay</span><span class="p">,</span> <span class="n">stake</span><span class="p">,</span> <span class="n">odds</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">agents_pool</span><span class="p">,</span> <span class="n">is_lay_lst</span><span class="p">,</span> <span class="n">stake_lst</span><span class="p">,</span> <span class="n">odds_lst</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">is_lay</span><span class="p">:</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">lay</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">max_odds</span><span class="o">=</span><span class="n">odds</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="n">stake</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">bet</span><span class="p">(</span><span class="n">event</span><span class="o">=</span><span class="n">event</span><span class="p">,</span> <span class="n">min_odds</span><span class="o">=</span><span class="n">odds</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="n">stake</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>**Event 3**
+  True Probability: 0.5
+  Bettor Odds: unset
+  Layer Odds: unset
+  All bets:
+    Bet(limit_odds=0.9589482171556404, stake=10.121330157712098, agent_idx=5, event_idx=3) (unmatched)
+    Bet(limit_odds=1.1021913575105593, stake=13.953245977804585, agent_idx=6, event_idx=3) (unmatched)
+    Bet(limit_odds=0.9309395503090993, stake=10.969928514259815, agent_idx=8, event_idx=3) (unmatched)
+    Bet(limit_odds=1.0062928269129183, stake=18.276968409775435, agent_idx=9, event_idx=3) (unmatched)
+    Bet(limit_odds=1.276340366127901, stake=13.677591909940771, agent_idx=11, event_idx=3) (unmatched)
+    Bet(limit_odds=1.1210272911574104, stake=12.831402020378162, agent_idx=13, event_idx=3) (unmatched)
+    Bet(limit_odds=0.9894588871246991, stake=11.396531097069392, agent_idx=16, event_idx=3) (unmatched)
+    Bet(limit_odds=0.5414344592281355, stake=16.783826108285865, agent_idx=20, event_idx=3) (unmatched)
+    Bet(limit_odds=0.7103427077282701, stake=12.317451841489731, agent_idx=21, event_idx=3) (unmatched)
+    Bet(limit_odds=0.9755205449094754, stake=14.2145158579491, agent_idx=22, event_idx=3) (unmatched)
+    Lay(limit_odds=0.8160623504866288, stake=10.79059156787764, agent_idx=4, event_idx=3) (unmatched)
+    Lay(limit_odds=1.0908956165718169, stake=18.984262449156954, agent_idx=7, event_idx=3) (unmatched)
+    Lay(limit_odds=1.2994079940244945, stake=19.71518105313191, agent_idx=10, event_idx=3) (unmatched)
+    Lay(limit_odds=1.359272947733516, stake=12.375825722149383, agent_idx=12, event_idx=3) (unmatched)
+    Lay(limit_odds=1.2437152257620023, stake=16.142910345822763, agent_idx=14, event_idx=3) (unmatched)
+    Lay(limit_odds=0.8695600224511162, stake=12.008992822212651, agent_idx=15, event_idx=3) (unmatched)
+    Lay(limit_odds=0.9592068960499668, stake=19.498045159384546, agent_idx=17, event_idx=3) (unmatched)
+    Lay(limit_odds=0.6951714555849988, stake=13.840535624444145, agent_idx=18, event_idx=3) (unmatched)
+    Lay(limit_odds=0.9542946362006186, stake=16.30214360863711, agent_idx=19, event_idx=3) (unmatched)
+    Lay(limit_odds=1.2760704338610713, stake=13.205822731380557, agent_idx=23, event_idx=3) (unmatched)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">event</span><span class="o">.</span><span class="n">match_bets</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>New round
+total_stake_bet = 0.0
+total_stake_layed = 0.0
+current_bet_odds = 0.5414344592281355
+current_lay_odds = 1.359272947733516
+Lay Needed
+next_lay_odds = 1.2994079940244945
+Lay matched
+
+New round
+total_stake_bet = 0.0
+total_stake_layed = 12.375825722149383
+current_bet_odds = 0.5414344592281355
+current_lay_odds = 1.2994079940244945
+Bet Needed
+Bet matched
+
+New round
+total_stake_bet = 16.783826108285865
+total_stake_layed = 12.375825722149383
+current_bet_odds = 0.7103427077282701
+current_lay_odds = 1.2994079940244945
+Lay Needed
+next_lay_odds = 1.2760704338610713
+Lay matched
+
+New round
+total_stake_bet = 16.783826108285865
+total_stake_layed = 32.09100677528129
+current_bet_odds = 0.7103427077282701
+current_lay_odds = 1.2760704338610713
+Bet Needed
+Bet matched
+
+New round
+total_stake_bet = 29.101277949775596
+total_stake_layed = 32.09100677528129
+current_bet_odds = 0.9309395503090993
+current_lay_odds = 1.2760704338610713
+Lay Needed
+next_lay_odds = 1.2437152257620023
+Lay matched
+
+New round
+total_stake_bet = 29.101277949775596
+total_stake_layed = 45.29682950666185
+current_bet_odds = 0.9309395503090993
+current_lay_odds = 1.2437152257620023
+Bet Needed
+Bet matched
+
+New round
+total_stake_bet = 40.07120646403541
+total_stake_layed = 45.29682950666185
+current_bet_odds = 0.9589482171556404
+current_lay_odds = 1.2437152257620023
+Lay Needed
+next_lay_odds = 1.0908956165718169
+Lay matched
+
+New round
+total_stake_bet = 40.07120646403541
+total_stake_layed = 61.439739852484614
+current_bet_odds = 0.9589482171556404
+current_lay_odds = 1.0908956165718169
+Bet Needed
+Bet matched
+
+New round
+total_stake_bet = 50.19253662174751
+total_stake_layed = 61.439739852484614
+current_bet_odds = 0.9755205449094754
+current_lay_odds = 1.0908956165718169
+Bet Needed
+Bet matched
+
+New round
+total_stake_bet = 64.4070524796966
+total_stake_layed = 61.439739852484614
+current_bet_odds = 0.9894588871246991
+current_lay_odds = 1.0908956165718169
+Lay Needed
+next_lay_odds = 0.9592068960499668
+Match not possible
+Process complete
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>**Event 3**
+  True Probability: 0.5
+  Bettor Odds: 0.9894588871246991
+  Layer Odds: 1.0908956165718169
+  All bets:
+    Bet(limit_odds=0.5414344592281355, stake=16.783826108285865, agent_idx=20, event_idx=3) (matched)
+    Bet(limit_odds=0.7103427077282701, stake=12.317451841489731, agent_idx=21, event_idx=3) (matched)
+    Bet(limit_odds=0.9309395503090993, stake=10.969928514259815, agent_idx=8, event_idx=3) (matched)
+    Bet(limit_odds=0.9589482171556404, stake=10.121330157712098, agent_idx=5, event_idx=3) (matched)
+    Bet(limit_odds=0.9755205449094754, stake=14.2145158579491, agent_idx=22, event_idx=3) (matched)
+    Bet(limit_odds=0.9894588871246991, stake=11.396531097069392, agent_idx=16, event_idx=3) (unmatched)
+    Bet(limit_odds=1.0062928269129183, stake=18.276968409775435, agent_idx=9, event_idx=3) (unmatched)
+    Bet(limit_odds=1.1021913575105593, stake=13.953245977804585, agent_idx=6, event_idx=3) (unmatched)
+    Bet(limit_odds=1.1210272911574104, stake=12.831402020378162, agent_idx=13, event_idx=3) (unmatched)
+    Bet(limit_odds=1.276340366127901, stake=13.677591909940771, agent_idx=11, event_idx=3) (unmatched)
+    Lay(limit_odds=1.359272947733516, stake=12.375825722149383, agent_idx=12, event_idx=3) (matched)
+    Lay(limit_odds=1.2994079940244945, stake=19.71518105313191, agent_idx=10, event_idx=3) (matched)
+    Lay(limit_odds=1.2760704338610713, stake=13.205822731380557, agent_idx=23, event_idx=3) (matched)
+    Lay(limit_odds=1.2437152257620023, stake=16.142910345822763, agent_idx=14, event_idx=3) (matched)
+    Lay(limit_odds=1.0908956165718169, stake=18.984262449156954, agent_idx=7, event_idx=3) (unmatched)
+    Lay(limit_odds=0.9592068960499668, stake=19.498045159384546, agent_idx=17, event_idx=3) (unmatched)
+    Lay(limit_odds=0.9542946362006186, stake=16.30214360863711, agent_idx=19, event_idx=3) (unmatched)
+    Lay(limit_odds=0.8695600224511162, stake=12.008992822212651, agent_idx=15, event_idx=3) (unmatched)
+    Lay(limit_odds=0.8160623504866288, stake=10.79059156787764, agent_idx=4, event_idx=3) (unmatched)
+    Lay(limit_odds=0.6951714555849988, stake=13.840535624444145, agent_idx=18, event_idx=3) (unmatched)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
     <script type="text/x-thebe-config">
@@ -225,13 +542,13 @@
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python383jvsc74a57bd0dca0ade3e726a953b501b15e8e990130d2b7799f14cfd9f4271676035ebe5511",
+            kernelName: "python397jvsc74a57bd04cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462",
             path: "./."
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'python383jvsc74a57bd0dca0ade3e726a953b501b15e8e990130d2b7799f14cfd9f4271676035ebe5511'</script>
+    <script>kernelName = 'python397jvsc74a57bd04cd7ab41f5fca4b9b44701077e38c5ffd31fe66a6cab21e0214b68d958d0e462'</script>
 
               </div>
               

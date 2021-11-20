@@ -11,7 +11,7 @@ from setuptools import find_packages, setup
 
 requirements = ["numpy", "scipy", "matplotlib", "pandas"]
 
-requirements_dev = ["jupyter", "pre-commit", "jupyter-book", "ghp-import"]
+requirements_dev = ["jupyter", "pre-commit", "jupyter-book", "ghp-import", "nbconvert"]
 
 setup(
     name="auctionbets",

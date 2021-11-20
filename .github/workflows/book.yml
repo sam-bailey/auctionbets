@@ -18,12 +18,17 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.9
-
+    
     - name: Install dependencies
       run: |
         pip install -e .[dev]
 
-    # Build the book
+    # Execute jupyter notebooks
+    - name: Execute notebooks
+      run: |
+        jupyter nbconvert --to notebook --execute ./book/auctionbets/*.ipynb --ExecutePreprocessor.kernel_name=python3 --inplace
+    
+    # Build the book (execution is turned off in config)
     - name: Build the book
       run: |
         jupyter-book build ./book/auctionbets/
